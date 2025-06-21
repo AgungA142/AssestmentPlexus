@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 
 require('dotenv').config();
+require('./config/redis');
 
 
 const errorHandler = require('./error-handler');
