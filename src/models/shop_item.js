@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class profile extends Model {
+  class shop_item extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,50 +11,52 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      profile.belongsTo(models.user, {
-        foreignKey: 'user_id',
-        as: 'user',
+      shop_item.belongsTo(models.shop, {
+        foreignKey: 'shop_id',
+        as: 'shop',
       });
-      profile.hasMany(models.inventory, {
-        foreignKey: 'profile_id',
-        as: 'inventories',
+      shop_item.belongsTo(models.item, {
+        foreignKey: 'item_id',
+        as: 'item',
       });
-
     }
   }
-  profile.init({
+  shop_item.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       primaryKey: true,
     },
-    user_id: {
+    shop_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'user',
+        model: 'shop',
         key: 'id',
       },
     },
-    username: {
-      type: DataTypes.STRING,
+    item_id: {
+      type: DataTypes.UUID,
       allowNull: false,
-      unique: true,
+      references: {
+        model: 'item',
+        key: 'id',
+      },
     },
-    game_currency: {
+    price: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
     },
-    score: {
+    stock: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
     },
   }, {
     sequelize,
-    modelName: 'profile',
+    modelName: 'shop_item',
   });
-  return profile;
+  return shop_item;
 };

@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class profile extends Model {
+  class inventory extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,50 +11,54 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      profile.belongsTo(models.user, {
-        foreignKey: 'user_id',
-        as: 'user',
-      });
-      profile.hasMany(models.inventory, {
+      inventory.belongsTo(models.profile, {
         foreignKey: 'profile_id',
-        as: 'inventories',
+        as: 'profile',
       });
-
+      inventory.belongsTo(models.item, {
+        foreignKey: 'item_id',
+        as: 'item',
+      });
     }
   }
-  profile.init({
+  inventory.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
-      primaryKey: true,
+      primaryKey: true
     },
-    user_id: {
+    profile_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'user',
+        model: 'profile',
         key: 'id',
       },
     },
-    username: {
-      type: DataTypes.STRING,
+    item_id: {
+      type: DataTypes.UUID,
       allowNull: false,
-      unique: true,
+      references: {
+        model: 'item',
+        key: 'id',
+      },
     },
-    game_currency: {
+    quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 1,
     },
-    score: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-    },
+    
   }, {
     sequelize,
-    modelName: 'profile',
+    modelName: 'inventory',
+    indexes: [
+      {
+        unique: true,
+        fields: ['profile_id', 'item_id']
+      }
+    ]
   });
-  return profile;
+  return inventory;
 };

@@ -34,13 +34,13 @@ const login = async (body) => {
             ]
         });
         if (!userData) {
-            throw new NotFoundError(StatusCodes.NOT_FOUND, 'Email tidak ditemukan');
+            throw new NotFoundError('Email tidak ditemukan');
         }
 
         // Cek apakah password cocok
         const isPasswordValid = await comparePassword(password, userData.password);
         if (!isPasswordValid) {
-            throw new ConflictError(StatusCodes.UNAUTHORIZED, 'Password salah');
+            throw new ConflictError('Password salah atau tidak cocok');
         }
 
         // Generate token JWT
@@ -57,7 +57,7 @@ const login = async (body) => {
             token,
         };
     } catch (error) {
-        if (error instanceof NotFoundError || error instanceof ConflictError || error instanceof BaseError) {
+        if (error instanceof NotFoundError || error instanceof ConflictError) {
             throw error;
         }
         throw new BaseError(StatusCodes.INTERNAL_SERVER_ERROR, 'Terjadi kesalahan saat login: ' + error.message);

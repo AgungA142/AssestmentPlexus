@@ -17,7 +17,7 @@ module.exports = {
     for (let i = 1; i <= 100; i++) {
       const userId = uuidv4();
       const username = `user${i}`;
-      const password = await bcrypt.hash('password123', 10);
+      const password = await bcrypt.hash('Password123!', 10);
       users.push({
         id: userId,
         email: `example${i}@gmail.com`,
@@ -31,6 +31,7 @@ module.exports = {
         user_id: userId,
         username: username,
         score: Math.floor(Math.random() * 1000), // skor acak antara 0-999
+        game_currency: 100,
         createdAt: new Date(),
         updatedAt: new Date()
       });

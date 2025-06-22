@@ -53,6 +53,9 @@ const getLeaderboard = async (query) => {
             pagination: pagination
         }
     } catch (error) {
+        if (error instanceof NotFoundError) {
+            throw error;
+        }
         throw new BaseError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
     }
 }

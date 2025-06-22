@@ -72,6 +72,9 @@ const saveHighestScoreByUserId = async (user_id, body) => {
         }
 
     } catch (error) {
+        if (error instanceof NotFoundError) {
+            throw error;
+        }
         throw new BaseError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
     }
 }
