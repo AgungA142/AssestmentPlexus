@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class profile extends Model {
+  class transaction extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,54 +11,53 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      profile.belongsTo(models.user, {
-        foreignKey: 'user_id',
-        as: 'user',
-      });
-      profile.hasMany(models.inventory, {
+      transaction.belongsTo(models.profile, {
         foreignKey: 'profile_id',
-        as: 'inventories',
+        as: 'profile',
       });
-      profile.hasMany(models.transaction, {
-        foreignKey: 'profile_id',
-        as: 'transactions',
-      });
-
     }
   }
-  profile.init({
+  transaction.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       primaryKey: true,
     },
-    user_id: {
+    profile_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'user',
+        model: 'profile',
         key: 'id',
       },
     },
-    username: {
+    order_id: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
     },
-    game_currency: {
+    amount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    total_price: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
     },
-    score: {
-      type: DataTypes.INTEGER,
+    status: {
+      type: DataTypes.ENUM('pending', 'completed', 'failed'),
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 'pending',
+    },
+    payment_method: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
   }, {
     sequelize,
-    modelName: 'profile',
+    modelName: 'transaction',
   });
-  return profile;
+  return transaction;
 };

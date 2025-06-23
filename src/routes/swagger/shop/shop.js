@@ -71,6 +71,45 @@
  *         description: Terjadi kesalahan saat melakukan pembelian item.
  *
  *
+ * /api/shop/topup:
+ *   post:
+ *     tags: [Transaction]
+ *     summary: melakukan top-up game currency
+ *     description: endpoint untuk melakukan top-up game currency.
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: integer
+ *                 description: Jumlah game currency yang ingin di-top-up.
+ *                 example: 1000
+ *               payment_method:
+ *                 type: string
+ *                 description: Metode pembayaran yang digunakan untuk top-up.
+ *                 example: "credit_card"
+ *               total_price:
+ *                 type: integer
+ *                 description: Total harga yang harus dibayar untuk top-up.
+ *                 example: 100000
+ * 
+ *     responses:
+ *       200:
+ *         description: Top-up game currency berhasil dilakukan.
+ *       400:
+ *         description: Bad request, jika ada kesalahan dalam permintaan.
+ *       404:
+ *         description: Profil pengguna tidak ditemukan.
+ *       500:
+ *         description: Terjadi kesalahan saat melakukan top-up game currency.
+ *
+ *
+ *
  * 
  * 
  */

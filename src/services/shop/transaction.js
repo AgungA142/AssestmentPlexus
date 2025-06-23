@@ -1,7 +1,8 @@
-const { shop, shop_item, item, profile, inventory, sequelize } = require('../../models');
+const { shop, shop_item, item, profile, inventory, transaction, sequelize } = require('../../models');
 const { BaseError, NotFoundError } = require('../../common/responses/error-response');
 const { StatusCodes } = require('http-status-codes');
-
+const { topupSchema } = require('../../common/validations/shop/transaction');
+const { simulatePaymentGateway } = require('../../common/utils/payment');
 /**
  * Membeli item dari shop.
  * @param {string} shop_id - ID dari shop tempat pembelian dilakukan.
@@ -14,25 +15,25 @@ const { StatusCodes } = require('http-status-codes');
  */
 
 const purchaseItem = async (shop_id, item_id, profile_id, quantity) => {
-    const transaction = await sequelize.transaction();
+    const t = await sequelize.transaction();
     try {
         // Cek apakah shop ada
         console.log(shop_id);
-        const shopData = await shop.findByPk(shop_id, { transaction });
+        const shopData = await shop.findByPk(shop_id, { t });
         if (!shopData) {
             throw new NotFoundError('Shop tidak ditemukan');
         }
 
         // Cek apakah item ada
         console.log(item_id);
-        const itemData = await item.findByPk(item_id, { transaction });
+        const itemData = await item.findByPk(item_id, { t });
         if (!itemData) {
             throw new NotFoundError('Item tidak ditemukan');
         }
 
         // Cek apakah profil ada
         console.log(profile_id);
-        const profileData = await profile.findByPk(profile_id, { transaction });
+        const profileData = await profile.findByPk(profile_id, { t });
         if (!profileData) {
             throw new NotFoundError('Profil tidak ditemukan');
         }
@@ -40,7 +41,7 @@ const purchaseItem = async (shop_id, item_id, profile_id, quantity) => {
         // Cek apakah item tersedia di shop
         const shopItem = await shop_item.findOne({
             where: { shop_id, item_id },
-            transaction
+            t
         });
         if (!shopItem) {
             throw new NotFoundError('Item tidak tersedia di shop ini');
@@ -64,7 +65,7 @@ const purchaseItem = async (shop_id, item_id, profile_id, quantity) => {
             { game_currency: profileData.game_currency - totalPrice }, 
             { 
                 where: { id: profile_id },
-                transaction 
+                t 
             }
         );
 
@@ -73,14 +74,14 @@ const purchaseItem = async (shop_id, item_id, profile_id, quantity) => {
             { stock: shopItem.stock - quantity },
             {
                 where: { shop_id, item_id },
-                transaction
+                t
             }
         );
 
         // Tambahkan item ke inventory profil
         const inventoryItem = await inventory.findOne({
             where: { profile_id, item_id },
-            transaction
+            t
         });
 
         if (inventoryItem) {
@@ -89,7 +90,7 @@ const purchaseItem = async (shop_id, item_id, profile_id, quantity) => {
                 { quantity: inventoryItem.quantity + quantity },
                 { 
                     where: { id: inventoryItem.id },
-                    transaction 
+                    t 
                 }
             );
         } else {
@@ -99,11 +100,10 @@ const purchaseItem = async (shop_id, item_id, profile_id, quantity) => {
                 item_id,
                 quantity,
                 acquired_at: new Date()
-            }, { transaction });
+            }, { t });
         }
 
-        // Commit transaction jika semua operasi berhasil
-        await transaction.commit();
+        await t.commit();
 
         return {
             totalPrice,
@@ -121,19 +121,106 @@ const purchaseItem = async (shop_id, item_id, profile_id, quantity) => {
         };
 
     } catch (error) {
-        // Rollback transaction jika terjadi error
-        await transaction.rollback();
+
+        await t.rollback();
         
-        // Re-throw error yang sudah diketahui
         if (error instanceof NotFoundError || error instanceof BaseError) {
             throw error;
         }
         
-        // Throw generic error untuk error yang tidak diketahui
         throw new BaseError(StatusCodes.INTERNAL_SERVER_ERROR, `Terjadi kesalahan saat melakukan pembelian: ${error.message}`);
     }
 };
 
+
+/**
+ * Fungsi untuk melakukan top-up game currency user
+ * @param {string} user_id - ID user yang akan melakukan top-up
+ * @param {Object} body - Data top-up yang berisi amount
+ * @returns {Promise<Object>} - Data hasil top-up
+ * @throws {NotFoundError} - Jika profile tidak ditemukan
+ * @throws {BaseError} - Jika terjadi kesalahan saat melakukan top-up
+ */
+
+const topUpGameCurrency = async (user_id, body) => {
+    const { error } = topupSchema.validate(body);
+    if (error) {
+        throw new BaseError(StatusCodes.BAD_REQUEST, `Data top-up tidak valid: ${error.message}`);
+    }
+    const { amount, payment_method, total_price } = body;
+    const t = await sequelize.transaction();
+    try {
+        // Cek apakah profil ada dengan row level lock untuk mencegah race condition
+        const profileData = await profile.findOne({
+            where: { user_id },
+            lock: t.LOCK.UPDATE,
+            transaction: t
+        });
+
+        if (!profileData) {
+            throw new NotFoundError('Profil tidak ditemukan');
+        }
+
+        const profile_id = profileData.id;
+        const order_id = `TOPUP-${Date.now()}-${profile_id}`;
+        // Buat transaksi top-up
+        const newTransaction = await transaction.create({
+            profile_id,
+            order_id,
+            amount,
+            total_price,
+            status: 'pending',
+            payment_method
+        }, { transaction: t });
+
+        // Simulasi payment gateway
+        const paymentResult = await simulatePaymentGateway(amount, payment_method);
+        if (!paymentResult.success) {
+            await transaction.update(
+                { status: 'failed' },
+                { where: { id: newTransaction.id }, transaction: t }
+            );
+
+            await t.commit();
+
+            throw new BaseError(StatusCodes.BAD_REQUEST, `Pembayaran gagal: ${paymentResult.message}`);
+        }
+
+        // Update saldo game currency
+        await profile.increment('game_currency', {
+            by: amount,
+            where: { id: profile_id },
+            transaction: t
+        });
+
+        // Update status transaksi menjadi completed
+        await transaction.update(
+            { status: 'completed' },
+            { where: { id: newTransaction.id }, transaction: t }
+        );
+
+        await t.commit();
+
+        return {
+            order_id: newTransaction.order_id,
+            username: profileData.username,
+            payment_method: newTransaction.payment_method,
+            amount: newTransaction.amount,
+            total_price: newTransaction.total_price,
+            newBalance: profileData.game_currency + amount
+        };
+    } catch (error) {
+        await t.rollback();
+
+        if (error instanceof NotFoundError || error instanceof BaseError) {
+            throw error;
+        }
+
+        throw new BaseError(StatusCodes.INTERNAL_SERVER_ERROR, `Terjadi kesalahan saat melakukan top-up: ${error.message}`);
+    }
+}
+
 module.exports = {
-    purchaseItem
+    purchaseItem,
+    topUpGameCurrency
 };

@@ -2,7 +2,7 @@ const { StatusCodes } = require('http-status-codes');
 const { BaseError, ConflictError } = require('../../common/responses/error-response');
 const BaseResponse = require('../../common/responses/base-response');
 const { getAllShops, getShopById } = require('../../services/shop/shop');
-const { purchaseItem } = require('../../services/shop/transaction');
+const { purchaseItem, topUpGameCurrency } = require('../../services/shop/transaction');
 const { profile } = require('../../models');
 
 const getAllShopsController = async (req, res, next) => {
@@ -59,8 +59,26 @@ const purchaseItemController = async (req, res, next) => {
     }
 }
 
+const topUpGameCurrencyController = async (req, res, next) => {
+    try {
+        const body = req.body;
+        const user_id = req.user.id;
+        const result = await topUpGameCurrency(user_id, body);
+        res.status(StatusCodes.OK).json(
+            new BaseResponse({
+                status: StatusCodes.OK,
+                message: 'Top up berhasil',
+                data: result
+            })
+        );
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     getAllShopsController,
     getShopByIdController,
-    purchaseItemController
+    purchaseItemController,
+    topUpGameCurrencyController
 };
