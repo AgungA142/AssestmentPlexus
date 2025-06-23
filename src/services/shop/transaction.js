@@ -183,7 +183,14 @@ const topUpGameCurrency = async (user_id, body) => {
 
             await t.commit();
 
-            throw new BaseError(StatusCodes.BAD_REQUEST, `Pembayaran gagal: ${paymentResult.message}`);
+            return {
+                status: 'failed',
+                order_id: newTransaction.order_id,
+                username: profileData.username,
+                payment_method: newTransaction.payment_method,
+                amount: newTransaction.amount,
+                total_price: newTransaction.total_price,
+            };
         }
 
         // Update saldo game currency
@@ -202,6 +209,7 @@ const topUpGameCurrency = async (user_id, body) => {
         await t.commit();
 
         return {
+            status: 'success',
             order_id: newTransaction.order_id,
             username: profileData.username,
             payment_method: newTransaction.payment_method,

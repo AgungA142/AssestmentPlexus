@@ -2,12 +2,10 @@ const JOI = require('joi');
 
 const topupSchema = JOI.object({
     amount: JOI.number().integer()
-        .min(1000)
         .required()
         .messages({
             'number.base': 'Jumlah harus berupa angka',
             'number.integer': 'Jumlah harus berupa bilangan bulat',
-            'number.min': 'Jumlah minimal adalah 1000',
             'any.required': 'Jumlah wajib diisi'
         }),
     total_price: JOI.number().integer()

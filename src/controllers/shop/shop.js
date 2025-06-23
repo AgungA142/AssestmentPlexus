@@ -64,6 +64,15 @@ const topUpGameCurrencyController = async (req, res, next) => {
         const body = req.body;
         const user_id = req.user.id;
         const result = await topUpGameCurrency(user_id, body);
+        if(result.status === 'failed') {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(
+            new BaseResponse({
+                status: StatusCodes.INTERNAL_SERVER_ERROR,
+                message: result.message,
+                data: result
+            })
+        );
+        }
         res.status(StatusCodes.OK).json(
             new BaseResponse({
                 status: StatusCodes.OK,

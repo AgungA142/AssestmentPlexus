@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "dev": "nodemon src/index.js"
   },
   "keywords": [],
@@ -28,7 +28,9 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "jest": "^30.0.2",
     "nodemon": "^3.1.10",
-    "sequelize-cli": "^6.6.3"
+    "sequelize-cli": "^6.6.3",
+    "supertest": "^7.1.1"
   }
 }
