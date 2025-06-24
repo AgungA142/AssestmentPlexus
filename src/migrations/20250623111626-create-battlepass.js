@@ -5,18 +5,39 @@ module.exports = {
     await queryInterface.createTable('battlepasses', {
       id: {
         allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true
       },
-      firstName: {
-        type: Sequelize.STRING
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
-      lastName: {
-        type: Sequelize.STRING
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: true
       },
-      email: {
-        type: Sequelize.STRING
+      startDate: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      endDate: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      price: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      quest_pool_value: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 30
+      },
+      status: {
+        type: Sequelize.ENUM('upcoming', 'in_season', 'ended'),
+        allowNull: false,
+        defaultValue: 'upcoming'
       },
       createdAt: {
         allowNull: false,

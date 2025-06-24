@@ -23,6 +23,24 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'profile_id',
         as: 'transactions',
       });
+      profile.hasMany(models.profile_battlepass, {
+        foreignKey: 'profile_id',
+        as: 'profile_battlepasses',
+      });
+      profile.hasMany(models.profile_quest, {
+        foreignKey: 'profile_id',
+        as: 'profile_quests',
+      });
+      profile.belongsToMany(models.battlepass, {
+        through: models.profile_battlepass,
+        foreignKey: 'profile_id',
+        as: 'battlepasses',
+      });
+      profile.belongsToMany(models.quest, {
+        through: models.profile_quest,
+        foreignKey: 'profile_id',
+        as: 'quests',
+      });
 
     }
   }

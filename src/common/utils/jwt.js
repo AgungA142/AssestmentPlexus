@@ -36,7 +36,7 @@ const verifyToken = (token, secret = JWT_SECRET) => {
         }
         return decoded;
     } catch (error) {
-        return BaseError( StatusCodes.INTERNAL_SERVER_ERROR +'Error saat verifikasi Token : ' + error.message);
+        throw new BaseError( StatusCodes.INTERNAL_SERVER_ERROR,'Error saat verifikasi Token : ' + error.message);
     }
 }
 

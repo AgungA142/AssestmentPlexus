@@ -9,4 +9,6 @@
  *     description: endpoint untuk toko dan item
  *   - name: Transaction
  *     description: endpoint untuk transaksi dan top-up
+ *   - name: Battlepass
+ *     description: endpoint untuk battlepass dan quest
  */
