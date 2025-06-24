@@ -36,27 +36,31 @@ spastikan perangkat sudah menginstall :
 
 ## Instalasi
 
-1. **Clone Repository**
+1. **Clone Repository**  
+
 clone repository di folder yang anda pilih 
 ```bash
 git clone <repository-url>
-cd BE-Assessment
+cd AssestmentPlexus/
 ```
 
-2. **Install dependencies**
+2. **Install dependencies**  
+
 lalu jalankan command berikut: 
 ```bash
 npm install
 ```
 
-3. **Environment Setup**
+3. **Environment Setup**  
+
    
-   copy env.sample lalu rename menjadi .env atau bisa menggunakan command berikut :
+copy env.sample lalu rename menjadi .env atau bisa menggunakan command berikut :
 ```bash
 cp .env.sample .env
 ```
+  
 
-   update .env dan sesuaikan dengan konfigurasi di perangkat anda, berikut konfigurasi yang saya gunakan:
+update .env dan sesuaikan dengan konfigurasi di perangkat anda, berikut konfigurasi yang saya gunakan:
 ```env
 PORT=3000
 
@@ -82,18 +86,20 @@ BASE_URL=http://localhost:3000
 ```
 
 4. **Setup Database**
-   
-   buat terlebih dahulu database baru sesuaikan nama database dengan DB_DATABASE yang ada di env lalu jalankan command berikut:
+
+  
+buat terlebih dahulu database baru sesuaikan nama database dengan DB_DATABASE yang ada di env lalu jalankan command berikut:
 ```bash
 npm run migrate
 ```
 
-   lalu jalankan command berikut:
+
+lalu jalankan command berikut:
 ```bash
 npm run seed
 ```
 
-    atau bisa langsung menjalan command berikut:
+atau bisa langsung menjalankan command berikut:
 ```bash
 npm run migrate:fresh
 ```
@@ -191,8 +197,16 @@ Setiap endpoint yang memiliki gambar gembok di bagian kanan maka itu memerlukan 
 ## Data Dummy User
 
 setelah melakukan database seeder diawal maka sudah disediakan akun user dummy yang bisa digunakan untuk login
-- **Email**: `example1@gmail.com` to `example100@gmail.com`
+- **Email**: `example1@gmail.com` sampai `example100@gmail.com`
 - **Password**: `Password123!`
 - **Role**: `player`
 
 untuk akun admin silahkan melakukan registrasi akun dengan role_name admin
+
+## Database Schema  
+berikut adalah gambar rancangan database schema:  
+
+
+![Database Schema](./db_schema.png)
+
+*Gambar di atas menunjukkan rancangan database schema yang digunakan dalam aplikasi ini, termasuk relasi antar tabel dan struktur data utama. untuk lebih interaktif silahkan upload file assestment.sql yang ada di project ini ke website [berikut](https://dbdiagram.io/home)*
