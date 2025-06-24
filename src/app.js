@@ -9,7 +9,8 @@ require('./config/redis');
 
 const errorHandler = require('./error-handler');
 const router = require('./routes/index');
-const swaggerSetup = require('./config/swagger')
+const swaggerSetup = require('./config/swagger');
+const { testCron, scheduleBattlepassUpdate } = require('./common/utils/cron');
 
 
 const app = express();
@@ -33,4 +34,6 @@ app.use('/api', router);
 app.use(errorHandler.notFound);
 app.use(errorHandler.errorHandler);
 
+scheduleBattlepassUpdate();
+// testCron(); uncomment code ini untuk testing cron job setiap 10 detik
 module.exports = app;

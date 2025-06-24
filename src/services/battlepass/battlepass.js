@@ -2,7 +2,8 @@ const {battlepass, profile_battlepass, battlepass_quest, profile_quest, quest, p
 const { BaseError, NotFoundError, ConflictError } = require('../../common/responses/error-response');
 const { StatusCodes } = require('http-status-codes');
 
-/** * Mengambil daftar battlepass yang tersedia
+/** 
+ * Mengambil daftar battlepass yang tersedia
  * @returns {Promise<Array>} - Daftar battlepass yang tersedia
  * @throws {NotFoundError} - Jika tidak ada data battlepass yang ditemukan
  * @throws {BaseError} - Jika terjadi kesalahan saat mengambil data battlepass
@@ -31,7 +32,8 @@ const getAvailableBattlepass = async () => {
 }
 
 
-/** * Mengaktifkan battlepass untuk user tertentu
+/** 
+ * Mengaktifkan battlepass untuk user tertentu
  * @param {string} user_id - ID pengguna yang ingin mengaktifkan battlepass
  * @param {string} battlepass_id - ID battlepass yang ingin diaktifkan
  * @returns {Promise<Object>} - Data profile_battlepass yang berhasil dibuat
@@ -140,7 +142,8 @@ const activateBattlepass = async (user_id, battlepass_id) => {
     }
 }
 
-/** * Mengambil quest yang user miliki pada battlepass aktif
+/** 
+ * Mengambil quest yang user miliki pada battlepass aktif
  * @param {string} user_id - ID pengguna yang ingin mengambil quest
  * @return {Promise<Object>} - Data battlepass dan quest yang terkait
  * @throws {NotFoundError} - Jika profile atau battlepass tidak ditemukan
