@@ -42,7 +42,7 @@ const getShopById = async (id) => {
         });
 
         if (!shopData) {
-            throw new NotFoundError(StatusCodes.NOT_FOUND, 'Shop tidak ditemukan');
+            throw new NotFoundError('Shop tidak ditemukan');
         }
 
         return shopData;

@@ -14,34 +14,40 @@ const { simulatePaymentGateway } = require('../../common/utils/payment');
  * @throws {BaseError} - Jika terjadi kesalahan saat melakukan pembelian.
  */
 
-const purchaseItem = async (shop_id, item_id, profile_id, quantity) => {
+const purchaseItem = async (shop_id, item_id, user_id, quantity) => {
     const t = await sequelize.transaction();
     try {
         // Cek apakah shop ada
         console.log(shop_id);
-        const shopData = await shop.findByPk(shop_id, { t });
+        const shopData = await shop.findByPk(shop_id, { transaction: t });
         if (!shopData) {
             throw new NotFoundError('Shop tidak ditemukan');
         }
 
         // Cek apakah item ada
         console.log(item_id);
-        const itemData = await item.findByPk(item_id, { t });
+        const itemData = await item.findByPk(item_id, { transaction: t });
         if (!itemData) {
             throw new NotFoundError('Item tidak ditemukan');
         }
 
         // Cek apakah profil ada
-        console.log(profile_id);
-        const profileData = await profile.findByPk(profile_id, { t });
+        console.log(user_id);
+        const profileData = await profile.findOne({
+            where: { user_id },
+            lock: t.LOCK.UPDATE,
+            transaction: t
+        });
         if (!profileData) {
             throw new NotFoundError('Profil tidak ditemukan');
         }
+        const profile_id = profileData.id
 
         // Cek apakah item tersedia di shop
         const shopItem = await shop_item.findOne({
             where: { shop_id, item_id },
-            t
+            lock: t.LOCK.UPDATE,
+            transaction: t
         });
         if (!shopItem) {
             throw new NotFoundError('Item tidak tersedia di shop ini');
@@ -61,38 +67,33 @@ const purchaseItem = async (shop_id, item_id, profile_id, quantity) => {
         }
 
         // Update saldo profil (kurangi saldo)
-        await profile.update(
-            { game_currency: profileData.game_currency - totalPrice }, 
-            { 
-                where: { id: profile_id },
-                t 
-            }
-        );
+        await profile.decrement('game_currency', {
+            by: totalPrice,
+            where: { id: profile_id },
+            transaction: t
+        });
 
         // Update stock di shop_item
-        await shop_item.update(
-            { stock: shopItem.stock - quantity },
-            {
-                where: { shop_id, item_id },
-                t
-            }
-        );
+        await shop_item.decrement('stock', {
+            by: quantity,
+            where: { id: shopItem.id },
+            transaction: t
+        });
 
         // Tambahkan item ke inventory profil
         const inventoryItem = await inventory.findOne({
             where: { profile_id, item_id },
-            t
+            lock: t.LOCK.UPDATE,
+            transaction: t
         });
 
         if (inventoryItem) {
             // Jika item sudah ada di inventory, tambahkan kuantitasnya
-            await inventory.update(
-                { quantity: inventoryItem.quantity + quantity },
-                { 
-                    where: { id: inventoryItem.id },
-                    t 
-                }
-            );
+            await inventory.increment('quantity', {
+                by: quantity,
+                where: { id: inventoryItem.id },
+                transaction: t
+            });
         } else {
             // Jika item belum ada di inventory, buat entri baru
             await inventory.create({
@@ -100,23 +101,26 @@ const purchaseItem = async (shop_id, item_id, profile_id, quantity) => {
                 item_id,
                 quantity,
                 acquired_at: new Date()
-            }, { t });
+            }, { transaction: t });
         }
 
         await t.commit();
 
         return {
             totalPrice,
+            currencyBeforePurchase: profileData.game_currency,
             remainingCurrency: profileData.game_currency - totalPrice,
             purchasedItem: {
                 itemId: itemData.id,
                 itemName: itemData.name,
                 quantity,
-                Price: shopItem.price
+                Price: totalPrice,
             },
             shopInfo: {
                 shopId: shopData.id,
-                shopName: shopData.name
+                shopName: shopData.name,
+                stockBeforePurchase: shopItem.stock,
+                stockAfterPurchase: shopItem.stock - quantity,
             }
         };
 

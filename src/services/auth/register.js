@@ -24,13 +24,13 @@ const register = async (body) => {
     // Cek apakah role ada
     const roleData = await role.findOne({ where: { name: role_name } });
     if (!roleData) {
-        throw new NotFoundError(StatusCodes.NOT_FOUND, 'Role tidak ditemukan');
+        throw new NotFoundError('Role tidak ditemukan');
     }
 
     // Cek apakah email sudah terdaftar
     const existingUser = await user.findOne({ where: { email } });
     if (existingUser) {
-        throw new ConflictError(StatusCodes.CONFLICT, 'Email sudah terdaftar');
+        throw new ConflictError('Email sudah terdaftar');
     }
 
     // Enkripsi password

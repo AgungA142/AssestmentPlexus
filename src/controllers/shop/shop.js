@@ -42,12 +42,12 @@ const purchaseItemController = async (req, res, next) => {
         const { shop_id, item_id } = req.params;
         const { quantity } = req.body;
         const user_id = req.user.id;
-        const profileUser = await profile.findOne({ where: { user_id } });
-        if (!profileUser) {
-            throw new ConflictError('Profil tidak ditemukan');
-        }
-        const profile_id = profileUser.id;
-        const result = await purchaseItem(shop_id, item_id, profile_id, quantity);
+        // const profileUser = await profile.findOne({ where: { user_id } });
+        // if (!profileUser) {
+        //     throw new ConflictError('Profil tidak ditemukan');
+        // }
+        // const profile_id = profileUser.id;
+        const result = await purchaseItem(shop_id, item_id, user_id, quantity);
         res.status(StatusCodes.OK).json(
             new BaseResponse({
                 status: StatusCodes.OK,

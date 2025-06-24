@@ -19,7 +19,7 @@ const getAvailableBattlepass = async () => {
         });
 
         if (!battlepassesData || battlepassesData.length === 0) {
-            throw new NotFoundError(StatusCodes.NOT_FOUND, 'Battlepass tidak ditemukan');
+            throw new NotFoundError('Battlepass tidak ditemukan');
         }
 
         return battlepassesData;
@@ -105,9 +105,9 @@ const activateBattlepass = async (user_id, battlepass_id) => {
             transaction: t
         });
 
-        // Buat entri di profile_quest untuk setiap quest yang terkait sebanyak 30 quest dari total quest yang ada secara acak
+        // Buat entri di profile_quest untuk setiap quest yang terkait sebanyak 80% quest dari total quest yang ada secara acak
         const questIds = battlepassQuests.map(bq => bq.quest_id);
-        const shuffledQuestIds = questIds.sort(() => 0.5 - Math.random()).slice(0, 30);
+        const shuffledQuestIds = questIds.sort(() => Math.random() - 0.5).slice(0, Math.ceil(questIds.length * 0.8));
         const profileQuestPromises = shuffledQuestIds.map(questId => {
             return profile_quest.create({
                 profile_id: profile_id,

@@ -7,6 +7,7 @@ const redisClient = require('../../config/redis');
  * mengambil data leaderboard berdasarkan skor user 
  * @param {Object} query - Objek yang berisi parameter untuk pagination filter dll.
  * @returns {Promise<Array>} - Daftar leaderboard yang berisi nama pengguna dan skor.
+ * @throws {NotFoundError} - Jika tidak ada data leaderboard yang ditemukan.
  * @throws {BaseError} - Jika terjadi kesalahan saat mengambil data leaderboard.
  */
 
@@ -36,7 +37,7 @@ const getLeaderboard = async (query) => {
         });
 
         if (!leaderboardData || leaderboardData.length === 0) {
-            throw new NotFoundError(StatusCodes.NOT_FOUND, 'Leaderboard tidak ditemukan');
+            throw new NotFoundError('Leaderboard tidak ditemukan');
         }
 
         

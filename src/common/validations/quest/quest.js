@@ -40,9 +40,19 @@ const createQuestSchema = JOI.object({
             'number.min': 'Nilai reward tidak boleh kurang dari 1',
             'any.required': 'Nilai reward harus diisi'
         }),
-    reward_item_name: JOI.string()
-        .optional()
-        .allow(''),
+    reward_item_name: JOI.when('reward_type', {
+        is: 'item',
+        then: JOI.string()
+            .lowercase()
+            .required()
+            .min(1)
+            .messages({
+                'string.empty': 'Nama item reward tidak boleh kosong jika tipe reward adalah item',
+                'string.min': 'Nama item reward harus memiliki minimal 1 karakter',
+                'any.required': 'Nama item reward harus diisi'
+            }),
+        otherwise: JOI.optional().allow('', null)
+    })
 })
 
 const updateQuestSchema = createQuestSchema.fork(['title', 'description', 'quest_type', 'objective', 'reward_type', 'reward_value', 'reward_item_name'], (schema) => schema.optional());

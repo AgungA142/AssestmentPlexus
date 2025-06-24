@@ -18,7 +18,7 @@ const getProfile = async (user_id) => {
         });
 
         if (!userData || !userData.profile) {
-            throw new NotFoundError(StatusCodes.NOT_FOUND, 'Profil tidak ditemukan');
+            throw new NotFoundError('Profil tidak ditemukan');
         }
 
         return userData;
@@ -48,12 +48,12 @@ const createProfile = async (user_id, body) => {
 
         const userData = await user.findByPk(user_id);
         if (!userData) {
-            throw new NotFoundError(StatusCodes.NOT_FOUND, 'User tidak ditemukan');
+            throw new NotFoundError('User tidak ditemukan');
         }
 
         const existingProfile = await profile.findOne({ where: { user_id } });
         if (existingProfile) {
-            throw new ConflictError(StatusCodes.CONFLICT, 'Profil sudah ada');
+            throw new ConflictError('Profil sudah ada');
         }
 
         const newProfile = await profile.create({

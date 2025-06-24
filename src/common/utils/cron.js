@@ -136,9 +136,9 @@ const updateBattlepassStatus = async () => {
 
 //cron job untuk update status battlepass setiap hari pada pukul 00:00
 const scheduleBattlepassUpdate = () => {
+    console.log('Running daily battlepass status update check...');
     cron.schedule('0 0 * * *', async () => {
         try {
-            console.log('Running daily battlepass status update check...');
             const result = await updateBattlepassStatus();
             console.log({
                 message: 'Battlepass status updated successfully',
@@ -154,6 +154,7 @@ const scheduleBattlepassUpdate = () => {
 const testCron = () => {
     cron.schedule('*/10 * * * * *', async () => {
         try {
+            console.log('Running test battlepass status update check...');
             const result = await updateBattlepassStatus();
             console.log({
                 message: 'Battlepass status updated successfully',

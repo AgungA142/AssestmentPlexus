@@ -18,6 +18,7 @@ const registerSchema = JOI.object({
       'any.required': 'Password tidak boleh kosong',
     }),
   role_name: JOI.string()
+    .lowercase()
     .valid('admin', 'player')
     .required()
     .messages({
