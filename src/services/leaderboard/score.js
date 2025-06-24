@@ -8,6 +8,7 @@ const { scoreSchema } = require('../../common/validations/user/score');
  * Mengambil data skor user berdasarkan ID user.
  * @param {string} user_id - ID user yang ingin diambil skornya.
  * @returns {Promise<Object>} - Objek yang berisi ID user, nama user, dan skor.
+ * @throws {NotFoundError} - Jika user tidak ditemukan.
  * @throws {BaseError} - Jika terjadi kesalahan saat mengambil data skor.
  */
 
@@ -18,7 +19,7 @@ const getScoreByUserId = async (user_id) => {
         });
 
         if (!userScore) {
-            throw new NotFoundError(StatusCodes.NOT_FOUND, 'user tidak ditemukan');
+            throw new NotFoundError('user belum mempunyai profile');
         }
 
         return {
@@ -35,6 +36,7 @@ const getScoreByUserId = async (user_id) => {
  * Menyimpan data skor tertinggi user berdasarkan ID user.
  * @param {string} user_id - ID user yang ingin disimpan skornya.
  * @returns {Promise<Object>} - Objek yang berisi ID user, nama user, dan skor.
+ * @throws {NotFoundError} - Jika user tidak ditemukan.
  * @throws {BaseError} - Jika terjadi kesalahan saat mengambil data skor.
  */
 const saveHighestScoreByUserId = async (user_id, body) => {
@@ -51,7 +53,7 @@ const saveHighestScoreByUserId = async (user_id, body) => {
         });
 
         if (!userScore) {
-            throw new NotFoundError(StatusCodes.NOT_FOUND, 'user tidak ditemukan');
+            throw new NotFoundError('user belum mempunyai profile');
         }
 
         if (score > userScore.score) {

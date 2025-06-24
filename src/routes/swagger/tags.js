@@ -11,4 +11,7 @@
  *     description: endpoint untuk transaksi dan top-up
  *   - name: Battlepass
  *     description: endpoint untuk battlepass dan quest
+ *   - name: Admin
+ *     description: endpoint untuk admin dan manajemen sistem
+ * 
  */

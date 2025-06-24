@@ -23,7 +23,9 @@ module.exports = {
         references: {
           model: 'battlepasses',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       status: {
         type: Sequelize.ENUM('active', 'completed', 'expired'),

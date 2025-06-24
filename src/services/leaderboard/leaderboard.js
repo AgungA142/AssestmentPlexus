@@ -1,6 +1,7 @@
 const { profile } = require('../../models');
 const { BaseError, NotFoundError} = require('../../common/responses/error-response');
 const { StatusCodes } = require('http-status-codes');
+const redisClient = require('../../config/redis');
 
 /**
  * mengambil data leaderboard berdasarkan skor user 
@@ -17,6 +18,16 @@ const getLeaderboard = async (query) => {
         const offset = (pageNumber - 1) * limitNumber;
         const topN = parseInt(n);
 
+        //cari data leaderboard dari cache Redis
+        const cacheKey = `leaderboard:${pageNumber}:${limitNumber}:${topN}`;
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            const parsedData = JSON.parse(cachedData);
+            return {
+                leaderboard: parsedData.leaderboard,
+                pagination: parsedData.pagination
+            };
+        }
         
         const leaderboardData = await profile.findAll({
             attributes: ['user_id','username', 'score'],
@@ -44,6 +55,17 @@ const getLeaderboard = async (query) => {
             hasPreviousPage: pageNumber > 1,
             topN: topN
         };
+        // Simpan data leaderboard ke cache Redis
+        const cacheData = {
+            leaderboard: slicedData.map((item, index) => ({
+                user_id: item.user_id,
+                rank: firstIndex + index + 1,
+                username: item.username,
+                score: item.score
+            })),
+            pagination: pagination
+        };
+        await redisClient.setEx(cacheKey, 3600, JSON.stringify(cacheData));
         return {
             leaderboard: slicedData.map((item, index) => ({
                 rank: firstIndex + index + 1,

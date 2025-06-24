@@ -23,7 +23,9 @@ module.exports = {
         references: {
           model: 'quests',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       profile_battlepass_id: {
         type: Sequelize.UUID,
@@ -31,7 +33,9 @@ module.exports = {
         references: {
           model: 'profile_battlepasses',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       status: {
         type: Sequelize.ENUM('in_progress', 'completed', 'expired'),

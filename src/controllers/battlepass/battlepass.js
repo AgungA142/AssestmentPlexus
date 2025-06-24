@@ -2,7 +2,7 @@ const { StatusCodes } = require('http-status-codes');
 const { BaseError, ConflictError } = require('../../common/responses/error-response');
 const BaseResponse = require('../../common/responses/base-response');
 const { getAvailableBattlepass, activateBattlepass, getActiveBattlepassQuests } = require('../../services/battlepass/battlepass');
-
+const { createBattlepass, updateBattlepass, deleteBattlepass } = require('../../services/admin/battlepass');
 
 const getAvailableBattlepassController = async (req, res, next) => {
     try {
@@ -52,8 +52,59 @@ const getActiveBattlepassQuestsController = async (req, res, next) => {
     }
 }
 
+const createBattlepassController = async (req, res, next) => {
+    try {
+        const body = req.body;
+        const result = await createBattlepass(body);
+        res.status(StatusCodes.CREATED).json(
+            new BaseResponse({
+                status: StatusCodes.CREATED,
+                message: 'Battlepass berhasil dibuat',
+                data: result
+            })
+        );
+    } catch (error) {
+        next(error);
+    }
+}
+
+const updateBattlepassController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const body = req.body;
+        const result = await updateBattlepass(id, body);
+        res.status(StatusCodes.OK).json(
+            new BaseResponse({
+                status: StatusCodes.OK,
+                message: 'Battlepass berhasil diupdate',
+                data: result
+            })
+        );
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteBattlepassController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        await deleteBattlepass(id);
+        res.status(StatusCodes.OK).json(
+            new BaseResponse({
+                status: StatusCodes.OK,
+                message: 'Battlepass berhasil dihapus'
+            })
+        );
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     getAvailableBattlepassController,
     activateBattlepassController,
-    getActiveBattlepassQuestsController
+    getActiveBattlepassQuestsController,
+    createBattlepassController,
+    updateBattlepassController,
+    deleteBattlepassController
 };

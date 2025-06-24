@@ -3,6 +3,7 @@ const { BaseError, ConflictError } = require('../../common/responses/error-respo
 const BaseResponse = require('../../common/responses/base-response');
 const { getAllShops, getShopById } = require('../../services/shop/shop');
 const { purchaseItem, topUpGameCurrency } = require('../../services/shop/transaction');
+const { createShop, updateShop, deleteShop } = require('../../services/admin/shop');
 const { profile } = require('../../models');
 
 const getAllShopsController = async (req, res, next) => {
@@ -85,9 +86,60 @@ const topUpGameCurrencyController = async (req, res, next) => {
     }
 }
 
+const createShopController = async (req, res, next) => {
+    try {
+        const body = req.body;
+        const result = await createShop(body);
+        res.status(StatusCodes.CREATED).json(
+            new BaseResponse({
+                status: StatusCodes.CREATED,
+                message: 'Shop berhasil dibuat',
+                data: result
+            })
+        );
+    } catch (error) {
+        next(error);
+    }
+}
+
+const updateShopController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const body = req.body;
+        const result = await updateShop(id, body);
+        res.status(StatusCodes.OK).json(
+            new BaseResponse({
+                status: StatusCodes.OK,
+                message: 'Shop berhasil diupdate',
+                data: result
+            })
+        );
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteShopController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        await deleteShop(id);
+        res.status(StatusCodes.OK).json(
+            new BaseResponse({
+                status: StatusCodes.OK,
+                message: 'Shop berhasil dihapus'
+            })
+        );
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     getAllShopsController,
     getShopByIdController,
     purchaseItemController,
-    topUpGameCurrencyController
+    topUpGameCurrencyController,
+    createShopController,
+    updateShopController,
+    deleteShopController
 };

@@ -1,4 +1,4 @@
-/**]
+/**
  * @swagger
  * 
  * /api/auth/register:

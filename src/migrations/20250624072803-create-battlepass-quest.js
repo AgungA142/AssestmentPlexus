@@ -15,7 +15,9 @@ module.exports = {
         references: {
           model: 'battlepasses',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       quest_id: {
         type: Sequelize.UUID,
@@ -23,7 +25,9 @@ module.exports = {
         references: {
           model: 'quests',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       createdAt: {
         allowNull: false,
